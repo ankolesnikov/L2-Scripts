@@ -48,14 +48,14 @@ SERVER=${SERVERS[$(python -c "arr='$WCL'.split(); print arr.index(sorted(arr)[0]
 
 # Start Env creating
 ssh -tn $SERVER $DOSPY 'create \
---node-count '$NODE_COUNT' \
---vcpu '$VCPU_COUNT' \
---ram '$RAM_SIZE' \
---admin-vcpu '$ADMIN_VCPU_COUNT' \
---admin-ram '$ADMIN_RAM_SIZE' \
---net-pool '$NET_POOL' \
---iso-path '$ISO_PATH' '\
-$ENV_NAME
+	--node-count '$NODE_COUNT' \
+	--vcpu '$VCPU_COUNT' \
+	--ram '$RAM_SIZE' \
+	--admin-vcpu '$ADMIN_VCPU_COUNT' \
+	--admin-ram '$ADMIN_RAM_SIZE' \
+	--net-pool '$NET_POOL' \
+	--iso-path '$ISO_PATH' '\
+	$ENV_NAME
 
 # Start Fuel Master Node installation
 ssh -tn $SERVER $DOSPY admin-setup $ENV_NAME
