@@ -2,7 +2,7 @@
 # List of servers
 SERVERS=(172.18.162.49 172.18.162.64 172.18.162.210 172.18.162.233)
 # Choose MOS version from arguments
-MOSV=(4.0 4.1.1 5.0 5.0.1 5.1 5.1.1 6.0 6.1 7.0)
+MOSV=(5.0 5.0.1 5.1 5.1.1 6.0 6.1 7.0)
 case "$1" in
 	-h|--help)
 	echo "$0 --mos | --MOS | -mos | -MOS version"
@@ -41,13 +41,26 @@ ENV_NAME=$(whoami)-$MOS
 
 # Looking for server with smallest load
 for SRV in ${SERVERS[@]}; do
-	WCL=$WCL' '$(ssh -tn ${SRV} 'virsh list | grep running | wc -l')
+	WCL=$WCL' '$(ssh -qtn ${SRV} 'virsh list | grep running | wc -l')
 done
 
 SERVER=${SERVERS[$(python -c "arr='$WCL'.split(); print arr.index(sorted(arr)[0])" )]}
 
+if ssh -qtn $SERVER stat $ISO_PATH \> /dev/null 2\>\&1; then
+    echo "+++ ISO Found"
+    if [[ 0 < $(ssh -qtn $SERVER $DOSPY list | grep $ENV_NAME | wc -l) ]]; then
+        echo "!!! Env" $ENV_NAME "on the server" $SERVER "exist !!!"
+        exit 1
+    else
+        echo "+++ Server" $SERVER "Env" $ENV_NAME
+    fi
+else
+echo "!!! ISO not found !!!"
+    exit 1
+fi
+
 # Start Env creating
-ssh -tn $SERVER $DOSPY 'create \
+ssh -qtn $SERVER $DOSPY 'create \
 	--node-count '$NODE_COUNT' \
 	--vcpu '$VCPU_COUNT' \
 	--ram '$RAM_SIZE' \
@@ -58,11 +71,11 @@ ssh -tn $SERVER $DOSPY 'create \
 	$ENV_NAME
 
 # Start Fuel Master Node installation
-ssh -tn $SERVER $DOSPY admin-setup $ENV_NAME
+ssh -qtn $SERVER $DOSPY admin-setup $ENV_NAME
 
 # Print Admin and Public Networks CIDR
-ADM_NET=$(ssh -tn $SERVER $DOSPY net-list $ENV_NAME | grep admin)
-PUB_NET=$(ssh -tn $SERVER $DOSPY net-list $ENV_NAME | grep public)
+ADM_NET=$(ssh -qtn $SERVER $DOSPY net-list $ENV_NAME | grep admin)
+PUB_NET=$(ssh -qtn $SERVER $DOSPY net-list $ENV_NAME | grep public)
 echo "ADM_NET" $ADM_NET
 echo "PUB_NET" $PUB_NET
 echo "Env created on the server" $SERVER
