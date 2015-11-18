@@ -84,7 +84,7 @@ read -p "Press any key to continue or CTRL-C if no tunnel needed"
 
 # Start tunnel to host
 echo "Press CTRL-C for terminate the tunnel"
-sshuttle -r $SERVER $(echo $NET_POOL | sed 's/...$//')
+sshuttle -r $SERVER $(echo $NET_POOL | sed 's/...$//') &
 
 # Delete Env after all
 #ssh -tn $SERVER $DOSPY erase $ENV_NAME
