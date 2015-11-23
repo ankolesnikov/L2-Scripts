@@ -76,10 +76,10 @@ ssh -qtn $SERVER $DOSPY admin-setup $ENV_NAME
 # Print Admin and Public Networks CIDR
 ADM_NET=$(ssh -qtn $SERVER $DOSPY net-list $ENV_NAME | grep admin)
 PUB_NET=$(ssh -qtn $SERVER $DOSPY net-list $ENV_NAME | grep public)
-echo "ADM_NET" $ADM_NET
-echo "PUB_NET" $PUB_NET
-echo "Env created on the server" $SERVER
-echo "Your Fuel Master IP is x.x.x.2 in net-pool" $NET_POOL 
+echo "+++ Env created on the server" $SERVER
+echo "+++ Network" $ADM_NET
+echo "+++ Network" $PUB_NET
+echo "+++ Fuel Master IP is "$(echo $ADM_NET | tr -s \  \\t | cut -f 2 | sed 's/.....$//')".2"
 read -p "Press any key to continue or CTRL-C if no tunnel needed"
 
 # Start tunnel to host
